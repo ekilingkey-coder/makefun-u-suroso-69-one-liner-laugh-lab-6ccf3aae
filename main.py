@@ -2,6 +2,7 @@
 """One-line-joke entrypoint: write the fridge-alibi line to /output/entry.txt."""
 
 import os
+import sys
 
 # One short funny line answering an appliance-excuse prompt.
 ENTRY = (
@@ -21,6 +22,25 @@ def write_entry() -> bytes:
     return data
 
 
+def read_back() -> bytes:
+    """Read OUTPUT_PATH back from disk as raw bytes."""
+    with open(OUTPUT_PATH, "rb") as handle:
+        return handle.read()
+
+
+def check() -> int:
+    """Write the entry, read it back, and report whether the bytes match."""
+    expected = write_entry()
+    actual = read_back()
+    if actual == expected:
+        print(f"MATCH {len(actual)} bytes")
+        return 0
+    print(f"MISMATCH expected {len(expected)} bytes, read {len(actual)} bytes")
+    return 1
+
+
 if __name__ == "__main__":
+    if "--check" in sys.argv[1:]:
+        raise SystemExit(check())
     written = write_entry()
     print(f"wrote {len(written)} bytes to {OUTPUT_PATH}")
